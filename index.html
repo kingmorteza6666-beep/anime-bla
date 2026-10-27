@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" style="--primary: #8b5cf6; --primary-2: #ec4899; --radius: 24px; --font: Tahoma;">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIP Anime Black - Cloud CRM</title>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+    --primary: #8b5cf6; --primary-2: #ec4899;
+    --bg: #09090b; --card: rgba(24,24,27,0.85);
+    --text: #f8fafc; --radius: 24px; --font: 'Tahoma';
+    --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --info: #0ea5e9;
+    --fs: 1;
+    --inner-bg: rgba(0,0,0,0.2);
+    --inner-bg-2: rgba(0,0,0,0.3);
+    --inner-border: rgba(255,255,255,0.08);
+    --inner-border-strong: rgba(255,255,255,0.1);
+    --muted: #a1a1aa;
+    --surface: rgba(255,255,255,0.05);
+}
+.light-mode {
+    --bg: #f8fafc; --card: rgba(255,255,255,0.95); --text: #0f172a;
+    --inner-bg: rgba(0,0,0,0.04); --inner-bg-2: rgba(0,0,0,0.06);
+    --inner-border: rgba(0,0,0,0.08); --inner-border-strong: rgba(0,0,0,0.12);
+    --muted: #475569; --surface: rgba(0,0,0,0.04);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font), sans-serif; }
+html { font-size: calc(16px * var(--fs)); }
+body { background: var(--bg); color: var(--text); padding-bottom: 50px; transition: 0.4s; overflow-x: hidden; }
+body::before {
+    content: ''; position: fixed; top: -200px; right: -200px; width: 500px; height: 500px;
+    background: radial-gradient(circle, var(--primary), transparent 70%); opacity: 0.12;
+    filter: blur(60px); pointer-events: none; z-index: -1;
+}
+body::after {
+    content: ''; position: fixed; bottom: -200px; left: -200px; width: 500px; height: 500px;
+    background: radial-gradient(circle, var(--primary-2), transparent 70%); opacity: 0.09;
+    filter: blur(60px); pointer-events: none; z-index: -1;
+}
+::-webkit-scrollbar { width: 8px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: linear-gradient(var(--primary), var(--primary-2)); border-radius: 10px; }
+
+.container { max-width: 900px; margin: 30px auto; padding: 15px; }
+.glass-card {
+    background: var(--card); backdrop-filter: blur(16px);
+    border: 1px solid rgba(139,92,246,0.15); border-radius: var(--radius);
+    padding: 30px; margin-bottom: 25px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+}
+.light-mode .glass-card { box-shadow: 0 10px 40px rgba(0,0,0,0.08); }
+
+.header-actions { display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 20px; }
+.action-btn {
+    background: var(--card); border: 1px solid var(--inner-border);
+    color: var(--text); width: 45px; height: 45px;
+    border-radius: calc(var(--radius)/2); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: 0.3s; font-size: 1.1rem;
+}
+.action-btn:hover { background: var(--primary); color: white; transform: rotate(15deg); }
+
+input, select, textarea {
+    width: 100%; padding: 15px; border-radius: calc(var(--radius)/2);
+    margin-bottom: 15px; border: 1px solid var(--inner-border-strong);
+    background: var(--inner-bg-2); color: var(--text);
+    outline: none; font-size: 1rem; transition: 0.3s;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 15px var(--primary); }
+input::placeholder, textarea::placeholder { color: var(--muted); }
+
+.num-input-wrap { position: relative; margin-bottom: 15px; }
+.num-input-wrap input { margin-bottom: 0 !important; padding-left: 100px !important; }
+.paste-btn {
+    position: absolute; left: 6px; top: 50%; transform: translateY(-50%);
+    background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    color: white; border: none; border-radius: 12px;
+    padding: 9px 14px; cursor: pointer; font-size: 0.78rem;
+    font-weight: bold; display: flex; align-items: center; gap: 5px;
+}
+
+.btn {
+    cursor: pointer; border: none; padding: 14px 20px;
+    border-radius: calc(var(--radius)/2); font-weight: bold;
+    display: inline-flex; align-items: center; gap: 8px;
+    justify-content: center; transition: 0.25s;
+    font-size: 0.95rem;
+}
+.btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: white; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-warning { background: var(--warning); color: white; }
+.btn-info { background: var(--info); color: white; }
+.btn-success { background: var(--success); color: white; }
+
+.user-row {
+    background: var(--inner-bg); padding: 16px;
+    border-radius: calc(var(--radius)*0.7); margin-bottom: 12px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-right: 4px solid var(--primary);
+}
+.battery-box { width: 70px; height: 32px; border: 2px solid var(--muted); border-radius: 6px; padding: 3px; position: relative; }
+.battery-box::after { content: ''; position: absolute; left: -6px; top: 8px; width: 4px; height: 12px; background: var(--muted); border-radius: 2px 0 0 2px; }
+.battery-level { height: 100%; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; font-weight: bold; }
+
+.pricing-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; margin-bottom: 25px; padding: 8px; }
+.plan-card {
+    position: relative; padding: 24px 18px 20px; border-radius: 22px;
+    background: linear-gradient(160deg, rgba(30,27,75,0.95), rgba(15,15,25,0.98));
+    overflow: hidden; cursor: pointer; transition: 0.4s;
+    border: 1px solid rgba(255,255,255,0.06);
+    text-align: center; color: #fff;
+}
+.light-mode .plan-card { background: linear-gradient(160deg, #ffffff, #f8fafc); color: var(--text); border-color: rgba(0,0,0,0.06); }
+.plan-card:hover { transform: translateY(-8px); box-shadow: 0 20px 50px rgba(139,92,246,0.35); }
+.plan-card[data-tier="1"] { --tier-color: #06b6d4; --tier-color-2: #3b82f6; }
+.plan-card[data-tier="2"] { --tier-color: #8b5cf6; --tier-color-2: #a855f7; }
+.plan-card[data-tier="3"] { --tier-color: #ec4899; --tier-color-2: #f43f5e; }
+.plan-card[data-tier="4"] { --tier-color: #f59e0b; --tier-color-2: #ef4444; }
+.plan-card[data-tier="5"] { --tier-color: #10b981; --tier-color-2: #06b6d4; }
+.plan-card[data-tier="6"] { --tier-color: #fbbf24; --tier-color-2: #f59e0b; }
+.plan-popular { position: absolute; top: 12px; left: 12px; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; font-size: 0.65rem; font-weight: 900; padding: 4px 10px; border-radius: 50px; }
+.plan-icon {
+    width: 60px; height: 60px; margin: 0 auto 14px; border-radius: 18px;
+    background: linear-gradient(135deg, var(--tier-color, var(--primary)), var(--tier-color-2, var(--primary-2)));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem; color: #fff;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+.plan-title { font-size: 1rem; font-weight: 800; margin-bottom: 12px; }
+.plan-price-wrap { display: flex; align-items: baseline; justify-content: center; gap: 6px; margin-bottom: 16px; direction: ltr; }
+.plan-price { font-size: 1.6rem; font-weight: 900; background: linear-gradient(135deg, var(--tier-color, var(--primary)), var(--tier-color-2, var(--primary-2))); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.plan-currency { font-size: 0.72rem; color: var(--muted); font-weight: bold; }
+.plan-old-price { font-size: 0.78rem; text-decoration: line-through; color: var(--danger); margin-bottom: 8px; }
+.plan-features { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; font-size: 0.78rem; color: var(--muted); }
+.plan-features span { display: flex; align-items: center; gap: 6px; justify-content: center; }
+.plan-features i { color: var(--tier-color, var(--primary)); font-size: 0.7rem; }
+.plan-btn { width: 100%; padding: 12px 16px; border: none; border-radius: 14px; background: linear-gradient(135deg, var(--tier-color, var(--primary)), var(--tier-color-2, var(--primary-2))); color: #fff; font-weight: 900; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+.stats-bar { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 10px; }
+.stat-badge { background: var(--surface); padding: 6px 12px; border-radius: 12px; white-space: nowrap; font-size: 0.85rem; color: var(--text); border: 1px solid var(--inner-border); cursor: pointer; }
+.stat-badge.active-filter { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: white; border-color: transparent; font-weight: bold; }
+
+.admin-tabs { display: flex; gap: 10px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 8px; }
+.admin-tabs .btn { flex: 0 0 auto; white-space: nowrap; padding: 12px 18px; font-size: 0.88rem; }
+
+#settings-drawer { position: fixed; top: 0; right: -400px; width: 360px; height: 100vh; background: rgba(9,9,11,0.97); backdrop-filter: blur(24px); border-left: 2px solid var(--primary); z-index: 1000; padding: 25px 20px; transition: 0.4s; overflow-y: auto; }
+.light-mode #settings-drawer { background: rgba(255,255,255,0.98); }
+#settings-drawer.open { right: 0; }
+#overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 999; display: none; }
+#overlay.open { display: block; }
+
+.settings-section { margin-bottom: 22px; }
+.settings-title { font-size: 0.82rem; color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; font-weight: bold; }
+.color-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+.color-btn { width: 100%; aspect-ratio: 1; border-radius: 50%; border: 2px solid transparent; cursor: pointer; padding: 0; }
+.color-btn:hover { transform: scale(1.18); border-color: var(--text); }
+.gradient-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.gradient-btn { width: 100%; aspect-ratio: 1.2; border-radius: 12px; cursor: pointer; }
+.st-btn { background: var(--surface); border: 1px solid var(--inner-border-strong); color: var(--text); padding: 8px 12px; border-radius: 10px; cursor: pointer; margin: 3px; font-size: 0.8rem; }
+.st-btn.active { background: linear-gradient(135deg, var(--primary), var(--primary-2)); border-color: transparent; color: white; font-weight: bold; }
+
+#receipt-temp { display: none; }
+.ticket-wrapper { width: 100%; max-width: 380px; margin: 0 auto; border-radius: 26px; padding: 3px; background: linear-gradient(135deg, #a855f7, #ec4899, #8b5cf6, #6366f1); }
+.ticket-inner { background: linear-gradient(160deg, #050510, #1a0a2e 45%, #0a0518); border-radius: 23px; overflow: hidden; }
+.ticket-header { padding: 28px 20px 22px; text-align: center; background: linear-gradient(180deg, rgba(168,85,247,0.35), transparent); }
+.ticket-crown { display: inline-flex; width: 55px; height: 55px; border-radius: 50%; background: radial-gradient(circle, rgba(251,191,36,0.25), rgba(168,85,247,0.15)); border: 2px solid rgba(251,191,36,0.5); align-items: center; justify-content: center; font-size: 1.6rem; color: #fbbf24; margin-bottom: 10px; }
+.ticket-title { font-size: 1.7rem; font-weight: 900; background: linear-gradient(90deg, #fbbf24, #fff, #a855f7, #ec4899, #fbbf24); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.ticket-sub { font-size: 0.68rem; color: #d8b4fe; letter-spacing: 4px; margin-top: 6px; }
+.ticket-body { padding: 22px 25px 25px; color: #fff; }
+.t-row { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(168,85,247,0.1); padding: 8px 0; }
+.t-label { color: #a1a1aa; font-size: 0.88rem; }
+.t-value { font-weight: bold; color: #fff; }
+.ticket-footer { text-align: center; font-size: 0.75rem; color: #a1a1aa; margin-top: 15px; padding-top: 12px; border-top: 1px dashed rgba(168,85,247,0.2); }
+
+.hidden { display: none !important; }
+.timer { font-family: monospace; font-size: 0.9rem; color: var(--warning); font-weight: bold; }
+
+.user-search-card { position: relative; overflow: hidden; text-align: center; }
+.user-search-glow { position: absolute; top: -50%; left: 50%; transform: translateX(-50%); width: 120%; height: 300px; background: radial-gradient(ellipse at center, var(--primary), transparent 60%); opacity: 0.2; filter: blur(50px); pointer-events: none; }
+.hero-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 16px; border-radius: 50px; background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(236,72,153,0.15)); border: 1px solid rgba(139,92,246,0.4); font-size: 0.72rem; font-weight: 900; letter-spacing: 3px; color: var(--primary); margin-bottom: 12px; position: relative; z-index: 1; }
+.hero-title { font-size: clamp(1.8rem, 7vw, 2.6rem); font-weight: 900; letter-spacing: 5px; background: linear-gradient(90deg, #fbbf24, var(--text), var(--primary), var(--primary-2), #fbbf24); background-size: 300% auto; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; position: relative; z-index: 1; }
+.hero-sub { font-size: 0.88rem; opacity: 0.65; margin-bottom: 24px; position: relative; z-index: 1; }
+.hero-search { display: flex; gap: 8px; align-items: stretch; background: var(--inner-bg); border: 1.5px solid rgba(139,92,246,0.25); border-radius: 18px; padding: 6px; position: relative; z-index: 1; }
+.hero-search:focus-within { border-color: var(--primary); box-shadow: 0 0 30px rgba(139,92,246,0.35); }
+.hero-search .search-prefix { display: flex; align-items: center; justify-content: center; width: 44px; color: var(--primary); }
+.hero-search input { margin: 0 !important; padding: 12px 5px !important; background: transparent !important; border: none !important; box-shadow: none !important; flex: 1; color: var(--text) !important; }
+.hero-search .search-btn { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: white; border: none; padding: 0 22px; border-radius: 14px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 6px; font-size: 0.9rem; }
+.hero-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; justify-content: center; position: relative; z-index: 1; }
+.hero-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 50px; background: var(--surface); border: 1px solid var(--inner-border); font-size: 0.75rem; color: var(--muted); }
+.hero-chip i { color: var(--primary); }
+
+.status-hero { position: relative; padding: 20px; border-radius: 24px; background: linear-gradient(145deg, rgba(139,92,246,0.08), rgba(236,72,153,0.05)); border: 1px solid rgba(139,92,246,0.2); overflow: hidden; }
+.status-name { font-size: 1.5rem; font-weight: 900; background: linear-gradient(135deg, var(--text), var(--primary)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
+.status-id { font-size: 0.78rem; color: var(--muted); font-family: monospace; margin-bottom: 18px; }
+.progress-circle-wrap { position: relative; width: 180px; height: 180px; margin: 0 auto 18px; }
+.progress-circle-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.circle-bg { fill: none; stroke: var(--inner-bg-2); stroke-width: 8; }
+.circle-fg { fill: none; stroke: url(#progressGrad); stroke-width: 8; stroke-linecap: round; }
+.progress-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.progress-percent { font-size: 2.4rem; font-weight: 900; background: linear-gradient(135deg, var(--primary), var(--primary-2)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.progress-label { font-size: 0.72rem; color: var(--muted); }
+.live-countdown { display: flex; gap: 6px; justify-content: center; margin: 15px 0; }
+.cd-box { background: var(--inner-bg); border: 1px solid var(--inner-border); border-radius: 12px; padding: 10px 12px; min-width: 60px; text-align: center; }
+.cd-num { font-size: 1.3rem; font-weight: 900; font-family: monospace; background: linear-gradient(135deg, var(--primary), var(--primary-2)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.cd-lbl { font-size: 0.65rem; color: var(--muted); }
+.loyalty-badge, .activity-badge { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 50px; font-weight: bold; font-size: 0.95rem; margin: 8px 4px; border: 1.5px solid; }
+.stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 18px; }
+.stat-box { background: var(--inner-bg); border: 1px solid var(--inner-border); border-radius: 14px; padding: 12px; text-align: center; }
+.stat-box .sb-icn { font-size: 1.1rem; color: var(--primary); margin-bottom: 6px; }
+.stat-box .sb-val { font-size: 1.15rem; font-weight: 900; }
+.stat-box .sb-lbl { font-size: 0.68rem; color: var(--muted); margin-top: 5px; }
+.timeline-wrap { position: relative; padding-right: 24px; margin-top: 15px; }
+.timeline-wrap::before { content: ''; position: absolute; right: 7px; top: 8px; bottom: 8px; width: 2px; background: linear-gradient(to bottom, var(--primary), var(--primary-2), transparent); }
+.tl-item { position: relative; padding: 10px 0 14px; }
+.tl-item::before { content: ''; position: absolute; right: -21px; top: 16px; width: 12px; height: 12px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-2)); border: 2px solid var(--bg); }
+.tl-head { display: flex; justify-content: space-between; font-size: 0.88rem; }
+.tl-title { font-weight: bold; }
+.tl-date { font-size: 0.75rem; color: var(--muted); }
+.tl-meta { font-size: 0.75rem; color: var(--primary); margin-top: 3px; }
+.no-user-card { text-align: center; padding: 30px 20px; }
+.no-user-icon { font-size: 3.5rem; margin-bottom: 15px; color: var(--danger); }
+
+.rev-filters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.rev-stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+.rev-stat { background: var(--inner-bg); border: 1px solid var(--inner-border); border-radius: 14px; padding: 14px; position: relative; }
+.rev-stat::before { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 3px; }
+.rev-stat.primary::before { background: var(--primary); }
+.rev-stat.success::before { background: var(--success); }
+.rev-stat.warning::before { background: var(--warning); }
+.rev-stat .rs-lbl { font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; }
+.rev-stat .rs-val { font-size: 1.35rem; font-weight: 900; }
+.rev-stat.primary .rs-val { color: var(--primary); }
+.rev-stat.success .rs-val { color: var(--success); }
+.rev-stat.warning .rs-val { color: var(--warning); }
+.rev-table { background: var(--inner-bg); border-radius: 14px; overflow: hidden; border: 1px solid var(--inner-border); }
+.rev-table-head, .rev-table-row { display: grid; grid-template-columns: 1.5fr 1fr 0.9fr 1fr; gap: 8px; padding: 12px 14px; font-size: 0.82rem; align-items: center; }
+.rev-table-head { background: var(--inner-bg-2); font-weight: bold; color: var(--muted); font-size: 0.75rem; }
+.rev-table-row { border-top: 1px solid var(--inner-border); }
+.rev-table-row .rt-money { color: var(--success); font-weight: bold; font-family: monospace; }
+.rev-empty { text-align: center; padding: 40px 20px; color: var(--muted); }
+
+.gateway-box { background: var(--inner-bg); padding: 15px; border-radius: 15px; margin-bottom: 20px; border-right: 3px solid var(--info); }
+.gateway-status { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 50px; font-size: 0.72rem; font-weight: bold; margin-right: 8px; }
+.gateway-status.active { background: rgba(16,185,129,0.15); color: var(--success); border: 1px solid var(--success); }
+.gateway-status.inactive { background: rgba(239,68,68,0.15); color: var(--danger); border: 1px solid var(--danger); }
+.inner-box { background: var(--inner-bg); padding: 15px; border-radius: 15px; }
+.gw-check { width: 90px; height: 90px; margin: 0 auto 18px; border-radius: 50%; background: radial-gradient(circle, rgba(16,185,129,0.2), transparent 70%); display: flex; align-items: center; justify-content: center; }
+.gw-check i { font-size: 3rem; color: var(--success); }
+.gw-steps { text-align: right; padding: 15px; background: var(--inner-bg); border-radius: 14px; margin-bottom: 15px; }
+.gw-step { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; font-size: 0.85rem; line-height: 1.7; }
+.gw-step-num { flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: white; font-size: 0.75rem; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+
+.sync-indicator { position: fixed; top: 10px; left: 10px; padding: 6px 12px; border-radius: 50px; font-size: 0.72rem; font-weight: bold; z-index: 500; display: flex; align-items: center; gap: 6px; transition: 0.3s; }
+.sync-indicator.online { background: rgba(16,185,129,0.2); color: var(--success); border: 1px solid var(--success); }
+.sync-indicator.syncing { background: rgba(245,158,11,0.2); color: var(--warning); border: 1px solid var(--warning); }
+.sync-indicator.error { background: rgba(239,68,68,0.2); color: var(--danger); border: 1px solid var(--danger); }
+</style>
+</head>
+<body>
+
+<div id="sync-indicator" class="sync-indicator syncing"><i class="fas fa-circle-notch fa-spin"></i> اتصال...</div>
+<div id="overlay" onclick="closeSettings()"></div>
+
+<div id="settings-drawer">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+        <h2 style="color:var(--primary); font-size:1.1rem;"><i class="fas fa-sliders-h"></i> تنظیمات</h2>
+        <button class="action-btn" onclick="closeSettings()" style="width:35px; height:35px;"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="settings-section">
+        <div class="settings-title"><i class="fas fa-magic"></i> گرادیان‌ها</div>
+        <div class="gradient-grid" id="gradient-grid"></div>
+    </div>
+    <div class="settings-section">
+        <div class="settings-title"><i class="fas fa-palette"></i> رنگ‌ها</div>
+        <div class="color-grid" id="colors-neon"></div>
+    </div>
+    <div class="settings-section">
+        <div class="settings-title"><i class="fas fa-font"></i> فونت</div>
+        <button class="st-btn" onclick="setTheme({fs:'0.85'})" data-fs="0.85">کوچک</button>
+        <button class="st-btn" onclick="setTheme({fs:'1'})" data-fs="1">عادی</button>
+        <button class="st-btn" onclick="setTheme({fs:'1.12'})" data-fs="1.12">بزرگ</button>
+    </div>
+    <div class="settings-section">
+        <div class="settings-title"><i class="fas fa-moon"></i> حالت</div>
+        <button class="st-btn" onclick="toggleDarkMode(false)" data-mode="dark">تاریک</button>
+        <button class="st-btn" onclick="toggleDarkMode(true)" data-mode="light">روشن</button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="header-actions">
+        <button class="action-btn" onclick="openSettings()"><i class="fas fa-cog"></i></button>
+        <button class="action-btn" id="admin-lock-btn" onclick="showLogin()"><i class="fas fa-lock"></i></button>
+    </div>
+
+    <div id="view-user">
+        <div class="glass-card user-search-card">
+            <div class="user-search-glow"></div>
+            <div class="hero-badge"><i class="fas fa-crown"></i> VIP ACCESS</div>
+            <h1 class="hero-title">ANIME BLACK</h1>
+            <p class="hero-sub">دنیای انیمه، فقط برای ویژه‌ها</p>
+            <div class="hero-search">
+                <div class="search-prefix"><i class="fas fa-search"></i></div>
+                <input id="q" placeholder="آیدی یا یوزرنیم..." onkeydown="if(event.key==='Enter')searchU()">
+                <button class="search-btn" onclick="searchU()">بررسی <i class="fas fa-arrow-left"></i></button>
+            </div>
+            <div class="hero-chips">
+                <span class="hero-chip"><i class="fas fa-bolt"></i> فوری</span>
+                <span class="hero-chip"><i class="fas fa-shield-alt"></i> امن</span>
+                <span class="hero-chip"><i class="fas fa-gift"></i> تخفیف</span>
+            </div>
+            <div id="q-res" class="hidden" style="margin-top:25px; border-top:1px solid var(--inner-border); padding-top:25px;"></div>
+        </div>
+        <div id="pricing-wrapper">
+            <h3 style="margin-bottom:15px; color:var(--primary);"><i class="fas fa-tags"></i> پلن‌ها</h3>
+            <div class="pricing-section" id="ad-list"></div>
+        </div>
+    </div>
+
+    <div id="view-admin" class="hidden">
+        <div class="glass-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+                <h2 style="color:var(--primary);"><i class="fas fa-shield-alt"></i> پنل فرماندهی</h2>
+                <button onclick="location.reload()" class="btn btn-danger" style="padding:8px 15px;"><i class="fas fa-sign-out-alt"></i> خروج</button>
+            </div>
+            <div class="admin-tabs">
+                <button class="btn btn-primary" onclick="adm(1)"><i class="fas fa-users"></i> اعضا</button>
+                <button class="btn btn-primary" onclick="adm(2)"><i class="fas fa-user-plus"></i> ثبت</button>
+                <button class="btn btn-warning" onclick="adm(3)"><i class="fas fa-wallet"></i> مالی</button>
+                <button class="btn btn-danger" onclick="adm(4)"><i class="fas fa-skull"></i> جنگ</button>
+                <button class="btn btn-info" onclick="adm(5)"><i class="fas fa-archive"></i> بایگانی</button>
+                <button class="btn btn-success" onclick="adm(6)"><i class="fas fa-chart-line"></i> درآمد</button>
+                <button class="btn btn-info" onclick="adm(7)"><i class="fas fa-upload"></i> بازیابی</button>
+            </div>
+            <div id="adm-c"></div>
+        </div>
+    </div>
+</div>
+
+<div id="receipt-temp">
+    <div id="ticket-capture" class="ticket-wrapper">
+        <div class="ticket-inner">
+            <div class="ticket-header">
+                <div class="ticket-crown"><i class="fas fa-crown"></i></div>
+                <h1 class="ticket-title">ANIME BLACK</h1>
+                <p class="ticket-sub">VIP SUBSCRIPTION TICKET</p>
+            </div>
+            <div class="ticket-body">
+                <div class="t-row"><span class="t-label"><i class="fas fa-user"></i> نام:</span><span class="t-value" id="r-name"></span></div>
+                <div class="t-row"><span class="t-label"><i class="fas fa-id-badge"></i> آیدی:</span><span class="t-value" id="r-uid" style="font-family:monospace;"></span></div>
+                <div class="t-row"><span class="t-label"><i class="fas fa-hourglass-half"></i> مدت:</span><span class="t-value" id="r-dur"></span></div>
+                <div class="t-row"><span class="t-label"><i class="fas fa-calendar-plus"></i> صدور:</span><span class="t-value" id="r-date"></span></div>
+                <div class="t-row"><span class="t-label"><i class="fas fa-calendar-times"></i> انقضا:</span><span class="t-value" id="r-exp"></span></div>
+                <div style="text-align:center; margin-top:20px;"><svg id="ticket-barcode" style="width:100%; max-height:55px; opacity:0.85;"></svg></div>
+                <div class="ticket-footer"><i class="fas fa-dragon"></i> سپاسگزاریم <i class="fas fa-dragon"></i></div>
+            </div>
+        </div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:20px;">
+        <button onclick="downloadTicket()" class="btn btn-primary" style="flex:1;"><i class="fas fa-download"></i> دانلود</button>
+        <button onclick="Swal.close()" class="btn btn-danger" style="flex:1;">بستن</button>
+    </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// 🔌 SUPABASE CONFIG (اینجا پر شده)
+// ═══════════════════════════════════════════════════════════
+const SUPABASE_URL = 'https://xvqgjrrnezrpbajafeak.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_EpGVRkyHYDq7rcyOUdTIow_yP77DO5P';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2200, background: 'var(--card)', color: 'var(--text)' });
+
+function setSyncStatus(status, msg) {
+    const el = document.getElementById('sync-indicator');
+    if(!el) return;
+    el.className = 'sync-indicator ' + status;
+    const icons = { online: 'fa-check-circle', syncing: 'fa-circle-notch fa-spin', error: 'fa-exclamation-triangle' };
+    el.innerHTML = `<i class="fas ${icons[status] || 'fa-circle'}"></i> ${msg}`;
+    if(status === 'online') setTimeout(() => el.style.opacity = '0.4', 2000);
+    else el.style.opacity = '1';
+}
+
+function universalCopy(text, msg) {
+    msg = msg || 'کپی شد';
+    const done = () => Toast.fire({icon: 'success', title: msg});
+    if(navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+    } else fallbackCopy(text, done);
+}
+function fallbackCopy(text, done) {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.top = '-9999px';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand('copy'); done(); } catch(e) {}
+    document.body.removeChild(ta);
+}
+async function pasteToInput(id) {
+    try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById(id).value = text.trim();
+        Toast.fire({icon:'success', title:'پیست شد'});
+    } catch(e) {
+        Toast.fire({icon:'info', title:'Ctrl+V بزن'});
+        document.getElementById(id).focus();
+    }
+}
+
+const defaultDB = {
+    users: [],
+    ads: [
+        {id: 1, title: 'اشتراک 1 ماهه', price: '35000'},
+        {id: 2, title: 'اشتراک 2 ماهه', price: '60000'},
+        {id: 3, title: 'اشتراک 3 ماهه', price: '85000'},
+        {id: 4, title: 'اشتراک 6 ماهه', price: '160000'},
+        {id: 5, title: 'اشتراک 1 ساله', price: '300000'},
+        {id: 6, title: 'اشتراک 2 ساله', price: '550000'}
+    ],
+    history: [],
+    payment: { card: '5892101662670112', name: 'مرتضی اسدی', telegram: 'Trol6', gateway: '' },
+    discounts: { bronze: 8, silver: 15, gold: 25, diamond: 30, epic: 40, legend: 50 }
+};
+
+let db = JSON.parse(JSON.stringify(defaultDB));
+let isConnected = false;
+let currentPlanFilter = 'all';
+
+// ═══════════════════════════════════════════════════════════
+// ☁️ CLOUD SYNC
+// ═══════════════════════════════════════════════════════════
+async function loadFromCloud() {
+    setSyncStatus('syncing', 'بارگذاری...');
+    try {
+        const { data, error } = await supabaseClient.from('anime_data').select('data').eq('id', 1).single();
+        if(error) throw error;
+        
+        if(data && data.data && Object.keys(data.data).length > 0) {
+            db = data.data;
+            if(!db.users) db.users = [];
+            if(!db.history) db.history = [];
+            if(!db.ads || !db.ads.length) db.ads = defaultDB.ads;
+            if(!db.payment) db.payment = defaultDB.payment;
+            if(!db.payment.gateway) db.payment.gateway = '';
+            if(!db.payment.telegram) db.payment.telegram = 'Trol6';
+            if(!db.discounts) db.discounts = defaultDB.discounts;
+            
+            isConnected = true;
+            setSyncStatus('online', `متصل • ${db.users.length} کاربر`);
+            console.log('✅ داده لود شد:', db.users.length, 'کاربر');
+        } else {
+            await saveToCloud();
+            setSyncStatus('online', 'راه‌اندازی اولیه');
+        }
+        renderUIAds();
+    } catch(e) {
+        console.error('خطای لود:', e);
+        setSyncStatus('error', 'آفلاین');
+        try {
+            const stored = localStorage.getItem('vip_db_final');
+            if(stored) {
+                db = JSON.parse(stored);
+                renderUIAds();
+                Toast.fire({icon: 'warning', title: 'حالت آفلاین'});
+            }
+        } catch(e2) {}
+    }
+}
+
+async function saveToCloud() {
+    localStorage.setItem('vip_db_final', JSON.stringify(db));
+    if(!isConnected) return;
+    setSyncStatus('syncing', 'ذخیره...');
+    try {
+        db._updatedAt = Date.now();
+        const { error } = await supabaseClient.from('anime_data').update({ data: db, updated_at: new Date().toISOString() }).eq('id', 1);
+        if(error) throw error;
+        setSyncStatus('online', 'ذخیره شد');
+    } catch(e) {
+        console.error('خطای ذخیره:', e);
+        setSyncStatus('error', 'ذخیره نشد');
+        Toast.fire({icon: 'error', title: 'ذخیره ناموفق'});
+    }
+}
+
+function save() {
+    db._updatedAt = Date.now();
+    saveToCloud();
+    renderUIAds();
+}
+
+// ═══════════════════════════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════════════════════════
+let userPref = JSON.parse(localStorage.getItem('vip_prefs')) || {
+    primary: '#8b5cf6', primary2: '#ec4899', radius: '24px', font: 'Tahoma',
+    isLight: false, fs: '1', cardStyle: 'glass'
+};
+
+function applyPref() {
+    const r = document.documentElement;
+    r.style.setProperty('--primary', userPref.primary);
+    r.style.setProperty('--primary-2', userPref.primary2 || userPref.primary);
+    r.style.setProperty('--radius', userPref.radius);
+    r.style.setProperty('--font', userPref.font);
+    r.style.setProperty('--fs', userPref.fs || '1');
+    if(userPref.isLight) document.body.classList.add('light-mode');
+    else document.body.classList.remove('light-mode');
+    localStorage.setItem('vip_prefs', JSON.stringify(userPref));
+    markActiveSettings();
+}
+function setTheme(u) { userPref = {...userPref, ...u}; applyPref(); }
+function toggleDarkMode(f) { setTheme({isLight: f}); }
+function openSettings() { document.getElementById('settings-drawer').classList.add('open'); document.getElementById('overlay').classList.add('open'); }
+function closeSettings() { document.getElementById('settings-drawer').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); }
+function markActiveSettings() {
+    document.querySelectorAll('.st-btn').forEach(b => {
+        b.classList.remove('active');
+        if(b.dataset.fs === userPref.fs) b.classList.add('active');
+        if(b.dataset.mode === 'dark' && !userPref.isLight) b.classList.add('active');
+        if(b.dataset.mode === 'light' && userPref.isLight) b.classList.add('active');
+    });
+}
+
+const COLORS = ['#8b5cf6','#a855f7','#d946ef','#ec4899','#f43f5e','#ef4444','#f97316','#f59e0b','#eab308','#84cc16','#22c55e','#10b981','#14b8a6','#06b6d4','#0ea5e9','#3b82f6'];
+const GRADIENTS = [
+    {c1:'#8b5cf6',c2:'#ec4899'},{c1:'#06b6d4',c2:'#3b82f6'},{c1:'#f59e0b',c2:'#ef4444'},
+    {c1:'#10b981',c2:'#06b6d4'},{c1:'#a855f7',c2:'#f43f5e'},{c1:'#eab308',c2:'#f97316'},
+    {c1:'#ec4899',c2:'#f43f5e'},{c1:'#22c55e',c2:'#eab308'}
+];
+function renderSettingsColors() {
+    const el = document.getElementById('colors-neon');
+    if(el) {
+        el.innerHTML = '';
+        COLORS.forEach(c => {
+            const b = document.createElement('button');
+            b.className = 'color-btn'; b.style.background = c;
+            b.onclick = () => setTheme({primary: c, primary2: c});
+            el.appendChild(b);
+        });
+    }
+    const gg = document.getElementById('gradient-grid');
+    if(gg) {
+        gg.innerHTML = '';
+        GRADIENTS.forEach(g => {
+            const b = document.createElement('button');
+            b.className = 'gradient-btn';
+            b.style.background = `linear-gradient(135deg, ${g.c1}, ${g.c2})`;
+            b.onclick = () => setTheme({primary: g.c1, primary2: g.c2});
+            gg.appendChild(b);
+        });
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════
+const pDate = (iso) => new Intl.DateTimeFormat('fa-IR', {year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(iso));
+const formatMoney = (num) => Number(num||0).toLocaleString('fa-IR') + ' تومان';
+const formatNum = (num) => Number(num||0).toLocaleString('fa-IR');
+
+function getPersianParts(date) {
+    try {
+        const fmt = new Intl.DateTimeFormat('en-US-u-ca-persian-nu-latn', {year:'numeric',month:'2-digit',day:'2-digit'});
+        const parts = {};
+        fmt.formatToParts(new Date(date)).forEach(p => parts[p.type] = p.value);
+        return {year: parseInt(parts.year), month: parseInt(parts.month), day: parseInt(parts.day)};
+    } catch(e) { return {year: 1404, month: 1, day: 1}; }
+}
+const PERSIAN_MONTHS = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+
+function getS(start, dur) {
+    const rem = (new Date(start).getTime() + (dur * 86400000)) - Date.now();
+    const days = Math.ceil(rem / 86400000);
+    let per = dur > 5000 ? 100 : Math.floor((rem / (dur * 86400000)) * 100);
+    return {rem, days, per: Math.max(0, Math.min(100, per)), end: new Date(start).getTime() + (dur * 86400000)};
+}
+function fmt(ms) {
+    if(ms <= 0) return "پایان یافته";
+    const d = Math.floor(ms/86400000), h = Math.floor((ms%86400000)/3600000),
+          m = Math.floor((ms%3600000)/60000), s = Math.floor((ms%60000)/1000);
+    return `${d} روز و ${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+}
+function getPlanGroup(dur) {
+    if(dur > 1000) return 999;
+    if(dur > 200) return 365;
+    if(dur > 105) return 180;
+    if(dur > 70) return 90;
+    if(dur > 40) return 60;
+    return 30;
+}
+function getPlanTier(dur) {
+    if(dur > 5000)  return {tier:6, icon:'fa-infinity', features:['دسترسی ابدی','همه پلن‌ها','پشتیبانی ویژه']};
+    if(dur >= 720)  return {tier:6, icon:'fa-gem', features:['۲۴ ماه','بهترین ارزش','VIP']};
+    if(dur >= 360)  return {tier:6, icon:'fa-crown', features:['۱۲ ماه','هدیه ویژه','بالاترین تخفیف']};
+    if(dur >= 180)  return {tier:4, icon:'fa-fire', features:['۶ ماه','تخفیف ویژه','پشتیبانی اولویت‌دار']};
+    if(dur >= 90)   return {tier:3, icon:'fa-bolt', features:['۳ ماه','محبوب‌ترین','پشتیبانی سریع']};
+    if(dur >= 60)   return {tier:2, icon:'fa-star', features:['۲ ماه','دسترسی کامل','پشتیبانی']};
+    return {tier:1, icon:'fa-rocket', features:['۱ ماه','دسترسی کامل','شروع سریع']};
+}
+function calculateLoyalty(hist) {
+    let td = hist.reduce((s, r) => s + (r.dur > 5000 ? 365 : r.dur), 0);
+    let mo = Math.floor(td / 30);
+    let d = db.discounts;
+    if(mo >= 48) return {name:'افسانه‌ای', icon:'fa-crown', color:'#fbbf24', discount:d.legend||40};
+    if(mo >= 36) return {name:'حماسی', icon:'fa-hat-wizard', color:'#a855f7', discount:d.epic||30};
+    if(mo >= 24) return {name:'الماس', icon:'fa-gem', color:'#06b6d4', discount:d.diamond};
+    if(mo >= 12) return {name:'طلایی', icon:'fa-medal', color:'#fbbf24', discount:d.gold};
+    if(mo >= 6) return {name:'نقره‌ای', icon:'fa-medal', color:'#c0c0c0', discount:d.silver};
+    if(mo >= 3) return {name:'برنزی', icon:'fa-medal', color:'#cd7f32', discount:d.bronze};
+    return {name:'تازه‌وارد', icon:'fa-seedling', color:'#22c55e', discount:0};
+}
+function calculateActivity(hist, activeUser) {
+    const tp = hist.length;
+    let last = null;
+    if(hist.length) {
+        last = hist.reduce((l, h) => {
+            const d = new Date(h.dateAdded);
+            return (!l || d > l) ? d : l;
+        }, null);
+    }
+    const ds = last ? Math.floor((Date.now() - last.getTime()) / 86400000) : 99999;
+    const isA = activeUser && getS(activeUser.start, activeUser.dur).rem > 0;
+    if(tp > 0 && ds > 90) return {name:'خیلی وقته ندیدیمت', icon:'fa-heart-broken', color:'#ef4444', desc:'دلت تنگ نشده؟'};
+    if(tp > 0 && ds > 30 && !isA) return {name:'دلتنگت شدیم', icon:'fa-heart', color:'#ec4899', desc:'منتظرتیم'};
+    if(isA && tp >= 12) return {name:'افسانه‌ی درخشان', icon:'fa-star', color:'#fbbf24', desc:'یه اسطوره!'};
+    if(isA && tp >= 7) return {name:'هوادار پرسابقه', icon:'fa-fire', color:'#ef4444', desc:'همیشه همراه'};
+    if(isA && tp >= 4) return {name:'طرفدار واقعی', icon:'fa-heart', color:'#ec4899', desc:'قدرت رو حس می‌کنیم'};
+    if(isA && tp >= 2) return {name:'همراه وفادار', icon:'fa-star', color:'#f59e0b', desc:'ممنون'};
+    if(isA) return {name:'همراه جدید', icon:'fa-sparkles', color:'#06b6d4', desc:'خوش اومدی'};
+    return {name:'تازه‌وارد', icon:'fa-seedling', color:'#22c55e', desc:'اولین قدم'};
+}
+
+// ═══════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════
+function renderUIAds(discount) {
+    discount = discount || 0;
+    const l = document.getElementById('ad-list');
+    if(!l) return;
+    l.innerHTML = '';
+    if(!db.ads || !db.ads.length) {
+        l.innerHTML = '<p style="text-align:center; opacity:0.5; grid-column:1/-1;">پلنی نیست</p>';
+        return;
+    }
+    db.ads.forEach((a) => {
+        let op = parseInt(a.price) || 0;
+        let fp = op;
+        let dp = 0;
+        if(discount > 0 && op > 0) { fp = op - Math.floor(op * discount / 100); dp = discount; }
+        
+        let months = 1;
+        const titleStr = a.title || '';
+        const ym = titleStr.match(/(\d+)\s*سال/);
+        if(ym) months = parseInt(ym[1]) * 12;
+        else { const mm = titleStr.match(/(\d+)\s*ماه/); if(mm) months = parseInt(mm[1]); }
+        const dd = months >= 100 ? 99999 : months * 30;
+        const ti = getPlanTier(dd);
+        const isPop = months === 3;
+        
+        const card = document.createElement('div');
+        card.className = 'plan-card';
+        card.dataset.tier = ti.tier;
+        card.onclick = () => handlePlanClick(a.title, fp, op);
+        
+        card.innerHTML = `
+            ${isPop ? '<div class="plan-popular">🔥 پرفروش</div>' : ''}
+            <div class="plan-icon"><i class="fas ${ti.icon}"></i></div>
+            <div class="plan-title">${a.title}</div>
+            ${dp > 0 ? `<div class="plan-old-price">${formatMoney(op)}</div>` : ''}
+            <div class="plan-price-wrap">
+                <div class="plan-price">${formatNum(fp)}</div>
+                <div class="plan-currency">تومان</div>
+            </div>
+            <div class="plan-features">
+                ${ti.features.map(f => `<span><i class="fas fa-check-circle"></i> ${f}</span>`).join('')}
+            </div>
+            <button class="plan-btn"><i class="fas fa-shopping-cart"></i> خرید</button>
+        `;
+        l.appendChild(card);
+    });
+}
+
+function handlePlanClick(title, basePrice, originalPrice) {
+    Swal.fire({
+        title: '<i class="fas fa-user-check"></i> شناسایی',
+        html: `
+            <div style="text-align:center; font-size:0.88rem; margin-bottom:15px; color:var(--muted);">آیدی عددی برای تخفیف</div>
+            <div style="position:relative;">
+                <input id="plan-check-id" type="tel" inputmode="numeric" placeholder="آیدی..." style="text-align:center; font-family:monospace; font-size:1.1rem; margin-bottom:0;">
+                <button type="button" class="paste-btn" onclick="pasteToInput('plan-check-id')"><i class="fas fa-paste"></i> پیست</button>
+            </div>
+            <p style="font-size:0.75rem; color:var(--muted); margin-top:12px;">کاربر جدیدی؟ خالی بذار</p>
+        `,
+        background: 'var(--card)', color: 'var(--text)',
+        showCancelButton: true, confirmButtonText: '<i class="fas fa-arrow-left"></i> ادامه', cancelButtonText: 'انصراف',
+        didOpen: () => { document.getElementById('plan-check-id')?.focus(); }
+    }).then(res => {
+        if(!res.isConfirmed) return;
+        const inputId = (document.getElementById('plan-check-id')?.value || '').trim();
+        const pp = parseInt(basePrice) || 0;
+        const op = parseInt(originalPrice) || 0;
+        
+        if(!inputId) return openInvoice(title, pp, op, {});
+        
+        const user = db.users.find(u => String(u.uid) === inputId);
+        const uh = (db.history || []).filter(h => String(h.uid) === inputId);
+        
+        if(!user && uh.length === 0) {
+            return Swal.fire({
+                icon: 'info', title: 'کاربر جدید',
+                html: `<p>آیدی <b style="color:var(--primary);">${inputId}</b> پیدا نشد.</p><p style="color:var(--success);">فاکتور با قیمت کامل</p>`,
+                background: 'var(--card)', color: 'var(--text)',
+                confirmButtonText: 'فاکتور'
+            }).then(() => openInvoice(title, pp, op, {userId: inputId}));
+        }
+        
+        const loyalty = calculateLoyalty(uh);
+        let fp = pp;
+        if(loyalty.discount > 0 && pp > 0) fp = pp - Math.floor(pp * loyalty.discount / 100);
+        openInvoice(title, fp, op, {
+            userId: inputId, userName: user ? user.name : (uh[0]?.name || ''),
+            discount: loyalty.discount, loyaltyName: loyalty.name
+        });
+    });
+}
+
+function openInvoice(title, finalPrice, originalPrice, opts) {
+    opts = opts || {};
+    let pt = formatMoney(finalPrice);
+    if(finalPrice < originalPrice) {
+        pt = `<del style="color:var(--danger); font-size:0.9rem">${formatMoney(originalPrice)}</del> <span style="color:var(--success); margin-right:5px">${formatMoney(finalPrice)}</span>`;
+    }
+    let ub = '';
+    if(opts.userId) {
+        ub = `<div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span style="color:var(--muted)">آیدی:</span><b style="font-family:monospace; color:var(--primary);">${opts.userId}</b></div>`;
+        if(opts.userName) ub = `<div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span style="color:var(--muted)">کاربر:</span><b>${opts.userName}</b></div>` + ub;
+    }
+    let db_ = '';
+    if(opts.discount > 0) {
+        db_ = `<div style="background:rgba(16,185,129,0.15); border:1px solid var(--success); border-radius:12px; padding:12px; margin-bottom:12px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span style="color:var(--muted); font-size:0.82rem;">سطح:</span><b style="color:var(--warning);">${opts.loyaltyName}</b></div>
+            <div style="display:flex; justify-content:space-between;"><span style="color:var(--muted); font-size:0.82rem;">تخفیف:</span><b style="color:var(--success);">${opts.discount}٪</b></div>
+        </div>`;
+    }
+    const hg = db.payment.gateway && db.payment.gateway.trim() !== '';
+    
+    Swal.fire({
+        title: '<i class="fas fa-receipt"></i> فاکتور',
+        background: 'var(--card)', color: 'var(--text)',
+        showConfirmButton: false, showCloseButton: true,
+        html: `
+            <div style="text-align:right; margin-top:15px;">
+                <div class="inner-box" style="margin-bottom:20px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom:1px dashed var(--inner-border-strong); padding-bottom:10px;"><span style="color:var(--muted)">سفارش:</span><b>${title}</b></div>
+                    ${ub}
+                    <div style="display:flex; justify-content:space-between; margin-bottom:12px;"><span style="color:var(--muted)">مبلغ پایه:</span><b>${formatMoney(originalPrice)}</b></div>
+                    ${db_}
+                    <div style="display:flex; justify-content:space-between; padding-top:10px; border-top:1px dashed var(--inner-border-strong);"><span style="color:var(--muted); font-weight:bold;">قابل پرداخت:</span><b style="font-size:1.1rem;">${pt}</b></div>
+                </div>
+                <h4 style="color:var(--primary); margin-bottom:15px; text-align:center;"><i class="fas fa-wallet"></i> روش پرداخت</h4>
+                ${hg ? `<button onclick="goToGateway('${title.replace(/'/g,'&#39;')}', ${finalPrice})" class="btn btn-success" style="width:100%; margin-bottom:10px; display:flex; justify-content:space-between;"><span><i class="fas fa-credit-card"></i> پرداخت آنلاین</span><i class="fas fa-external-link-alt"></i></button>` : `<button class="btn" style="width:100%; background:var(--surface); color:var(--muted); cursor:not-allowed; margin-bottom:10px; display:flex; justify-content:space-between;" disabled><span><i class="fas fa-credit-card"></i> درگاه</span><span style="font-size:0.75rem;">غیرفعال</span></button>`}
+                <button onclick="showCardPay()" class="btn btn-primary" style="width:100%; display:flex; justify-content:space-between;"><span><i class="fas fa-exchange-alt"></i> کارت به کارت</span><i class="fas fa-chevron-left"></i></button>
+                <div id="card-pay-box" class="hidden" style="margin-top:15px; background:var(--inner-bg-2); border:1px dashed var(--primary); border-radius:15px; padding:15px; text-align:center;">
+                    <p style="font-size:0.85rem; color:var(--muted); margin-bottom:10px;">مبلغ رو واریز کن:</p>
+                    <div style="font-family:monospace; font-size:1.4rem; letter-spacing:2px; color:var(--success); margin-bottom:5px; direction:ltr;">${db.payment.card}</div>
+                    <p style="color:var(--warning); font-size:0.9rem; margin-bottom:15px;">${db.payment.name}</p>
+                    <div style="display:flex; gap:10px;">
+                        <button onclick="universalCopy('${db.payment.card}', 'کارت کپی شد')" class="btn btn-info" style="flex:1; font-size:0.85rem;"><i class="fas fa-copy"></i> کپی</button>
+                        <a href="https://t.me/${(db.payment.telegram||'Trol6').replace('@','')}" target="_blank" class="btn btn-primary" style="flex:2; font-size:0.85rem; text-decoration:none;"><i class="fab fa-telegram"></i> ارسال رسید</a>
+                    </div>
+                </div>
+            </div>
+        `
+    });
+}
+
+window.showCardPay = () => document.getElementById('card-pay-box')?.classList.toggle('hidden');
+
+window.goToGateway = function(planTitle, amount) {
+    const url = db.payment.gateway;
+    const tg = (db.payment.telegram || 'Trol6').replace('@','');
+    window.open(url, '_blank');
+    Swal.close();
+    const text = encodeURIComponent(`سلام\nپرداخت انجام شد\n\nپلن: ${planTitle}\nمبلغ: ${Number(amount).toLocaleString('fa-IR')} تومان\nآیدی من: \nیوزرنیم: \n\nرسید خدمتتون.`);
+    const tgLink = `https://t.me/${tg}?text=${text}`;
+    setTimeout(() => {
+        Swal.fire({
+            title: '', html: `
+                <div style="text-align:center;">
+                    <div class="gw-check"><i class="fas fa-check"></i></div>
+                    <h2 style="color:var(--success); font-size:1.3rem; margin-bottom:8px;">درگاه باز شد!</h2>
+                    <div class="gw-steps">
+                        <div class="gw-step"><div class="gw-step-num">۱</div><div>پرداخت رو تکمیل کن</div></div>
+                        <div class="gw-step"><div class="gw-step-num">۲</div><div>اسکرین‌شات رسید بگیر</div></div>
+                        <div class="gw-step"><div class="gw-step-num">۳</div><div>رسید رو بفرست</div></div>
+                    </div>
+                    <a href="${tgLink}" target="_blank" class="btn btn-primary" style="width:100%; text-decoration:none; padding:16px; margin-bottom:10px;"><i class="fab fa-telegram"></i> ارسال رسید</a>
+                    <p style="font-size:0.75rem; color:var(--danger); margin-top:15px;"><i class="fas fa-exclamation-triangle"></i> بدون رسید فعال نمی‌شه</p>
+                </div>
+            `,
+            background: 'var(--card)', color: 'var(--text)',
+            showConfirmButton: true, confirmButtonText: 'متوجه شدم', width: '420px'
+        });
+    }, 300);
+};
+
+// ═══════════════════════════════════════════════════════════
+// ADMIN
+// ═══════════════════════════════════════════════════════════
+function adm(t) {
+    const c = document.getElementById('adm-c');
+    if(!c) return;
+    c.innerHTML = '';
+    if(t === 1) renderMembersTab(c);
+    else if(t === 2) renderRegisterTab(c);
+    else if(t === 3) renderFinanceTab(c);
+    else if(t === 4) renderWarRoomTab(c);
+    else if(t === 5) renderArchiveTab(c);
+    else if(t === 6) renderRevenueTab(c);
+    else if(t === 7) renderRecoveryTab(c);
+}
+
+function renderMembersTab(c) {
+    currentPlanFilter = 'all';
+    let c1=0,c2=0,c3=0,c6=0,c12=0,cp=0;
+    db.users.forEach(u => {
+        const p = getPlanGroup(u.dur);
+        if(p===30) c1++; else if(p===60) c2++; else if(p===90) c3++;
+        else if(p===180) c6++; else if(p===365) c12++; else if(p===999) cp++;
+    });
+    c.innerHTML = `
+    <div class="stats-bar">
+        <span id="sb-all" class="stat-badge active-filter" onclick="setPlanFilter('all')"><i class="fas fa-users"></i> کل: ${db.users.length}</span>
+        <span id="sb-30" class="stat-badge" onclick="setPlanFilter(30)">۱ ماه: ${c1}</span>
+        <span id="sb-60" class="stat-badge" onclick="setPlanFilter(60)">۲ ماه: ${c2}</span>
+        <span id="sb-90" class="stat-badge" onclick="setPlanFilter(90)">۳ ماه: ${c3}</span>
+        <span id="sb-180" class="stat-badge" onclick="setPlanFilter(180)">۶ ماه: ${c6}</span>
+        <span id="sb-365" class="stat-badge" onclick="setPlanFilter(365)">۱ سال: ${c12}</span>
+        <span id="sb-999" class="stat-badge" onclick="setPlanFilter(999)">دائمی: ${cp}</span>
+    </div>
+    <div style="display:flex; gap:10px; margin-bottom:15px;">
+        <input type="text" id="admin-search" oninput="renderAdminUsers(this.value.toLowerCase().trim())" placeholder="جستجو..." style="margin:0; flex:1;">
+        <button class="btn btn-info" onclick="bulkExtend()" style="padding:0 20px;"><i class="fas fa-gift"></i></button>
+    </div>
+    <div id="admin-user-list"></div>`;
+    renderAdminUsers("");
+}
+
+function renderAdminUsers(query) {
+    query = query || "";
+    const list = document.getElementById('admin-user-list');
+    if(!list) return;
+    list.innerHTML = "";
+    let filtered = db.users;
+    if(currentPlanFilter !== 'all') filtered = filtered.filter(u => getPlanGroup(u.dur) === currentPlanFilter);
+    if(query) filtered = filtered.filter(u => 
+        String(u.uid).includes(query) || 
+        (u.uname && u.uname.toLowerCase().includes(query)) || 
+        (u.name && u.name.toLowerCase().includes(query))
+    );
+    if(!filtered.length) {
+        list.innerHTML = "<p style='text-align:center; opacity:0.6; padding:20px;'>کاربری نیست</p>";
+        return;
+    }
+    filtered.forEach(u => {
+        const s = getS(u.start, u.dur);
+        list.innerHTML += `<div class="user-row">
+            <div><b>${u.name}</b> <span style="opacity:0.6; font-size:0.8rem;">(${u.uid})</span><br>
+            <div class="timer" data-end="${s.end}">${fmt(s.rem)}</div></div>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <div class="battery-box"><div class="battery-level" style="width:${s.per}%; background:${s.per>20?'var(--success)':'var(--danger)'}">${s.per}%</div></div>
+                <button onclick="editU(${u.id})" class="btn btn-warning" style="padding:10px;"><i class="fas fa-pen"></i></button>
+                <button onclick="delU(${u.id}, 1)" class="btn btn-danger" style="padding:10px;"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>`;
+    });
+}
+
+window.setPlanFilter = (plan) => {
+    currentPlanFilter = plan;
+    document.querySelectorAll('.stat-badge').forEach(b => b.classList.remove('active-filter'));
+    document.getElementById('sb-' + plan)?.classList.add('active-filter');
+    renderAdminUsers(document.getElementById('admin-search')?.value.toLowerCase().trim() || "");
+};
+
+function renderRegisterTab(c) {
+    c.innerHTML = `
+    <p style="font-size:0.85rem; color:var(--muted); margin-bottom:15px;">اگه آیدی تکراری باشه، تمدید می‌شه.</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <input id="n_n" placeholder="نام">
+        <div class="num-input-wrap">
+            <input id="n_i" type="tel" inputmode="numeric" placeholder="آیدی عددی">
+            <button type="button" class="paste-btn" onclick="pasteToInput('n_i')"><i class="fas fa-paste"></i> پیست</button>
+        </div>
+    </div>
+    <input id="n_u" placeholder="یوزرنیم @">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <select id="n_d">
+            <option value="30">1 ماهه</option>
+            <option value="60">2 ماهه</option>
+            <option value="90">3 ماهه</option>
+            <option value="180">6 ماهه</option>
+            <option value="365">1 ساله</option>
+            <option value="99999">دائمی</option>
+        </select>
+        <div class="num-input-wrap">
+            <input id="n_p" type="tel" inputmode="numeric" placeholder="مبلغ">
+            <button type="button" class="paste-btn" onclick="pasteToInput('n_p')"><i class="fas fa-paste"></i> پیست</button>
+        </div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:10px;">
+        <button onclick="genReceipt()" class="btn btn-warning" style="flex:1;"><i class="fas fa-ticket-alt"></i> فیش</button>
+        <button onclick="addU()" class="btn btn-primary" style="flex:2;"><i class="fas fa-check"></i> ثبت</button>
+    </div>`;
+}
+
+function renderFinanceTab(c) {
+    const hg = db.payment.gateway && db.payment.gateway.trim() !== '';
+    c.innerHTML = `
+    <h3 style="color:var(--info); margin-bottom:15px;"><i class="fas fa-percent"></i> تخفیف وفاداری (%)</h3>
+    <div class="inner-box" style="margin-bottom:25px; display:grid; grid-template-columns:repeat(auto-fit, minmax(100px, 1fr)); gap:10px;">
+        <div><label style="font-size:0.8rem; color:var(--muted);">برنزی</label><input type="number" value="${db.discounts.bronze}" oninput="db.discounts.bronze=parseInt(this.value)||0; save();" style="margin-bottom:0; padding:10px;"></div>
+        <div><label style="font-size:0.8rem; color:var(--muted);">نقره‌ای</label><input type="number" value="${db.discounts.silver}" oninput="db.discounts.silver=parseInt(this.value)||0; save();" style="margin-bottom:0; padding:10px;"></div>
+        <div><label style="font-size:0.8rem; color:var(--muted);">طلایی</label><input type="number" value="${db.discounts.gold}" oninput="db.discounts.gold=parseInt(this.value)||0; save();" style="margin-bottom:0; padding:10px;"></div>
+        <div><label style="font-size:0.8rem; color:var(--muted);">الماس</label><input type="number" value="${db.discounts.diamond}" oninput="db.discounts.diamond=parseInt(this.value)||0; save();" style="margin-bottom:0; padding:10px;"></div>
+        <div><label style="font-size:0.8rem; color:var(--muted);">حماسی</label><input type="number" value="${db.discounts.epic||30}" oninput="db.discounts.epic=parseInt(this.value)||0; save();" style="margin-bottom:0; padding:10px;"></div>
+        <div><label style="font-size:0.8rem; color:var(--muted);">افسانه‌ای</label><input type="number" value="${db.discounts.legend||40}" oninput="db.discounts.legend=parseInt(this.value)||0; save();" style="margin-bottom:0; padding:10px;"></div>
+    </div>
+    <h3 style="color:var(--success); margin-bottom:15px;"><i class="fas fa-credit-card"></i> پرداخت</h3>
+    <div class="inner-box" style="margin-bottom:20px;">
+        <input value="${db.payment.card}" oninput="db.payment.card=this.value; save();" placeholder="شماره کارت">
+        <input value="${db.payment.name}" oninput="db.payment.name=this.value; save();" placeholder="نام صاحب کارت">
+        <input value="${db.payment.telegram}" oninput="db.payment.telegram=this.value; save();" placeholder="آیدی تلگرام">
+    </div>
+    <h3 style="color:var(--info); margin-bottom:15px;"><i class="fas fa-shopping-cart"></i> درگاه <span class="gateway-status ${hg?'active':'inactive'}">${hg?'فعال':'غیرفعال'}</span></h3>
+    <div class="gateway-box">
+        <input value="${db.payment.gateway||''}" oninput="db.payment.gateway=this.value; save(); adm(3);" placeholder="https://daramet.com/Aniblack" style="direction:ltr;">
+        ${hg ? `<a href="${db.payment.gateway}" target="_blank" class="btn btn-info" style="width:100%; margin-top:8px; font-size:0.82rem; text-decoration:none;"><i class="fas fa-external-link-alt"></i> تست</a>` : ''}
+    </div>
+    <h3 style="color:var(--warning); margin-bottom:15px;"><i class="fas fa-tags"></i> پلن‌ها</h3>`;
+    db.ads.forEach((a, i) => {
+        c.innerHTML += `<div class="inner-box" style="margin-bottom:15px; border-right:3px solid var(--warning);">
+            <input value="${a.title}" oninput="db.ads[${i}].title=this.value; save();" placeholder="نام">
+            <input type="tel" inputmode="numeric" value="${a.price}" oninput="db.ads[${i}].price=this.value; save();" placeholder="قیمت">
+            <button onclick="db.ads.splice(${i},1); save(); adm(3);" class="btn btn-danger" style="width:100%;"><i class="fas fa-trash"></i> حذف</button>
+        </div>`;
+    });
+    c.innerHTML += `<button onclick="db.ads.push({id:Date.now(), title:'پکیج جدید', price:'50000'}); save(); adm(3);" class="btn btn-primary"><i class="fas fa-plus"></i> پلن جدید</button>`;
+}
+
+function renderWarRoomTab(c) {
+    const near = db.users.filter(u => { const s = getS(u.start, u.dur); return s.days <= 5 && s.rem > 0; });
+    const exp = db.users.filter(u => getS(u.start, u.dur).rem <= 0);
+    if(near.length > 0) {
+        c.innerHTML += `<h3 style="color:var(--warning); margin-bottom:15px;"><i class="fas fa-exclamation-triangle"></i> رو به اتمام (${near.length})</h3>`;
+        near.forEach(u => { c.innerHTML += `<div class="user-row" style="border-color:var(--warning); padding:10px;"><div><b>${u.name}</b><br><span style="color:var(--text);">${getS(u.start,u.dur).days} روز</span></div><button onclick="editU(${u.id})" class="btn btn-warning" style="padding:8px;"><i class="fas fa-pen"></i></button></div>`; });
+    }
+    c.innerHTML += `<h3 style="color:var(--danger); margin:25px 0 15px;"><i class="fas fa-skull"></i> منقضی (${exp.length})</h3>`;
+    if(exp.length > 0) {
+        exp.forEach(u => { c.innerHTML += `<div class="user-row" style="border-color:var(--danger); padding:10px;"><div><b>${u.name}</b><br><span style="font-size:0.8rem;">${u.uid}</span></div><div style="display:flex; gap:5px;"><button onclick="editU(${u.id}, true)" class="btn btn-warning" style="padding:8px;"><i class="fas fa-redo"></i></button><button onclick="delU(${u.id}, 4)" class="btn btn-danger" style="padding:8px;"><i class="fas fa-trash"></i></button></div></div>`; });
+    } else c.innerHTML += `<p style="text-align:center; opacity:0.5;">خالی</p>`;
+}
+
+function renderArchiveTab(c) {
+    c.innerHTML = `<h3 style="color:#0ea5e9; margin-bottom:15px;"><i class="fas fa-archive"></i> بایگانی</h3>
+    <input type="text" id="archive-search" oninput="renderArchive(this.value.toLowerCase().trim())" placeholder="جستجو..." style="margin-bottom:15px;">
+    <div id="archive-list"></div>`;
+    renderArchive("");
+}
+
+window.renderArchive = (query) => {
+    query = query || "";
+    const list = document.getElementById('archive-list');
+    if(!list) return;
+    list.innerHTML = "";
+    let filtered = [...db.history].reverse();
+    if(query) filtered = filtered.filter(h => String(h.uid).includes(query) || (h.name && h.name.toLowerCase().includes(query)));
+    if(!filtered.length) {
+        list.innerHTML = `<p style="text-align:center; opacity:0.5;">سابقه‌ای نیست</p>`;
+        return;
+    }
+    filtered.forEach(h => {
+        list.innerHTML += `<div style="border-right:3px solid #3b82f6; background:var(--inner-bg); padding:10px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+            <div><div><b>${h.name}</b> <span style="font-size:0.8rem;">(${h.uid})</span></div>
+            <div style="color:var(--primary); margin:5px 0;">${h.dur > 5000 ? 'دائمی' : h.dur + ' روز'}${h.price ? ' - ' + formatMoney(h.price) : ''}</div>
+            <div style="font-size:0.75rem; opacity:0.6;">${pDate(h.dateAdded)}</div></div>
+            <button onclick="delHistory('${h.dateAdded}')" class="btn btn-danger" style="padding:8px;"><i class="fas fa-trash"></i></button>
+        </div>`;
+    });
+};
+
+function renderRevenueTab(c) {
+    const now = getPersianParts(Date.now());
+    const years = [];
+    for(let y = now.year - 2; y <= now.year + 2; y++) years.push(y);
+    c.innerHTML = `
+    <h3 style="color:var(--success); margin-bottom:15px;"><i class="fas fa-chart-line"></i> درآمد</h3>
+    <div class="rev-filters">
+        <div><label style="font-size:0.78rem; color:var(--muted);">سال</label><select id="rev-year" onchange="calcRevenue()">${years.map(y => `<option value="${y}" ${y===now.year?'selected':''}>${y}</option>`).join('')}</select></div>
+        <div><label style="font-size:0.78rem; color:var(--muted);">ماه</label><select id="rev-month" onchange="calcRevenue()">${PERSIAN_MONTHS.map((m,i) => `<option value="${i+1}" ${i+1===now.month?'selected':''}>${m}</option>`).join('')}</select></div>
+    </div>
+    <div id="rev-result"></div>`;
+    calcRevenue();
+}
+
+function calcRevenue() {
+    const year = parseInt(document.getElementById('rev-year').value);
+    const month = parseInt(document.getElementById('rev-month').value);
+    const result = document.getElementById('rev-result');
+    const invoices = db.history.filter(h => {
+        const p = getPersianParts(h.dateAdded || h.start);
+        return p.year === year && p.month === month;
+    });
+    let total = 0;
+    invoices.forEach(h => {
+        let p = parseInt(h.price) || 0;
+        if(!p) {
+            const guess = db.ads.find(a => {
+                const m = (a.title||'').match(/(\d+)/);
+                if(!m) return false;
+                return Math.abs(parseInt(m[1]) * 30 - h.dur) < 10;
+            });
+            if(guess) p = parseInt(guess.price);
+        }
+        h._calcPrice = p;
+        total += p;
+    });
+    const avg = invoices.length ? Math.round(total / invoices.length) : 0;
+    result.innerHTML = `
+        <div class="rev-stats-grid">
+            <div class="rev-stat primary"><div class="rs-lbl"><i class="fas fa-coins"></i> درآمد</div><div class="rs-val">${formatNum(total)}</div></div>
+            <div class="rev-stat success"><div class="rs-lbl"><i class="fas fa-shopping-bag"></i> فروش</div><div class="rs-val">${formatNum(invoices.length)}</div></div>
+            <div class="rev-stat warning"><div class="rs-lbl"><i class="fas fa-chart-simple"></i> میانگین</div><div class="rs-val">${formatNum(avg)}</div></div>
+        </div>
+        ${invoices.length === 0 ? '<div class="rev-empty"><i class="fas fa-inbox"></i><p>فاکتوری نیست</p></div>' : `
+        <div class="rev-table">
+            <div class="rev-table-head"><div>کاربر</div><div>پلن</div><div>تاریخ</div><div>مبلغ</div></div>
+            ${invoices.slice().reverse().map(h => `<div class="rev-table-row"><div><b>${h.name||'—'}</b></div><div>${h.dur > 5000 ? 'دائمی' : h.dur + ' روز'}</div><div style="font-size:0.72rem;">${pDate(h.dateAdded||h.start)}</div><div class="rt-money">${h._calcPrice > 0 ? formatNum(h._calcPrice) : '—'}</div></div>`).join('')}
+        </div>`}`;
+}
+
+function renderRecoveryTab(c) {
+    c.innerHTML = `
+    <h3 style="color:var(--success); margin-bottom:15px;"><i class="fas fa-upload"></i> بازیابی</h3>
+    <p style="font-size:0.85rem; color:var(--muted); margin-bottom:20px;">فایل HTML قدیمی رو بذار</p>
+    <div id="upload-zone" ondragover="event.preventDefault()" ondrop="handleDrop(event)" onclick="document.getElementById('file-input').click()" style="border:2px dashed rgba(139,92,246,0.4); border-radius:18px; padding:40px 20px; text-align:center; background:var(--inner-bg); cursor:pointer;">
+        <input type="file" id="file-input" accept=".html,.htm" onchange="handleFileSelect(event)" style="display:none;">
+        <div style="width:70px; height:70px; margin:0 auto 15px; border-radius:50%; background:linear-gradient(135deg, var(--primary), var(--primary-2)); display:flex; align-items:center; justify-content:center; color:white; font-size:1.8rem;"><i class="fas fa-cloud-upload-alt"></i></div>
+        <h4>فایل رو بکش یا کلیک کن</h4>
+    </div>
+    <div id="recovery-preview" style="margin-top:20px;"></div>`;
+}
+
+let recoveredData = null;
+function handleDrop(e) { e.preventDefault(); const f = e.dataTransfer.files[0]; if(f) processRecoveryFile(f); }
+function handleFileSelect(e) { const f = e.target.files[0]; if(f) processRecoveryFile(f); }
+function extractDBFromHTML(html) {
+    let m = html.match(/window\.PRELOADED_DB\s*=\s*(\{[\s\S]*?\})\s*;?\s*<\/script>/);
+    if(m) return tryParse(m[1]);
+    const sm = html.match(/<script[^>]*id=["']db-backup["'][^>]*>([\s\S]*?)<\/script>/i);
+    if(sm) {
+        const im = sm[1].match(/window\.PRELOADED_DB\s*=\s*(\{[\s\S]*\})/);
+        if(im) return tryParse(im[1]);
+    }
+    return null;
+}
+function tryParse(str) {
+    try { return JSON.parse(str.trim().replace(/;\s*$/, '')); }
+    catch(e) { try { return (new Function('return ' + str))(); } catch(e2) { return null; } }
+}
+function processRecoveryFile(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const parsed = extractDBFromHTML(e.target.result);
+        if(!parsed) return Toast.fire({icon: 'error', title: 'دیتابیس پیدا نشد'});
+        showRecoveryPreview(parsed);
+    };
+    reader.readAsText(file, 'UTF-8');
+}
+function showRecoveryPreview(data) {
+    recoveredData = data;
+    const p = document.getElementById('recovery-preview');
+    p.innerHTML = `
+        <div class="inner-box" style="border:1px solid var(--success);">
+            <h4 style="color:var(--success); margin-bottom:15px;">فایل معتبر</h4>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:15px;">
+                <div style="text-align:center;"><div style="font-size:1.3rem; font-weight:900; color:var(--primary);">${(data.users||[]).length}</div><div style="font-size:0.7rem; color:var(--muted);">کاربر</div></div>
+                <div style="text-align:center;"><div style="font-size:1.3rem; font-weight:900; color:var(--info);">${(data.history||[]).length}</div><div style="font-size:0.7rem; color:var(--muted);">سابقه</div></div>
+                <div style="text-align:center;"><div style="font-size:1.3rem; font-weight:900; color:var(--warning);">${(data.ads||[]).length}</div><div style="font-size:0.7rem; color:var(--muted);">پلن</div></div>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button onclick="confirmRecovery()" class="btn btn-success" style="flex:2;"><i class="fas fa-download"></i> بازیابی</button>
+                <button onclick="recoveredData=null; document.getElementById('recovery-preview').innerHTML='';" class="btn btn-danger" style="flex:1;">لغو</button>
+            </div>
+        </div>`;
+}
+function confirmRecovery() {
+    if(!recoveredData) return;
+    Swal.fire({
+        title: 'تایید', html: 'اطلاعات جایگزین می‌شه. مطمئنی؟',
+        background: 'var(--card)', color: 'var(--text)',
+        showCancelButton: true, confirmButtonText: 'بله', cancelButtonText: 'انصراف'
+    }).then(res => {
+        if(res.isConfirmed) {
+            db = {
+                users: recoveredData.users || [],
+                ads: recoveredData.ads || defaultDB.ads,
+                history: recoveredData.history || [],
+                payment: recoveredData.payment || defaultDB.payment,
+                discounts: recoveredData.discounts || defaultDB.discounts
+            };
+            if(!db.payment.gateway) db.payment.gateway = '';
+            save();
+            Toast.fire({icon: 'success', title: `${db.users.length} کاربر بازیابی شد`});
+            setTimeout(() => adm(1), 800);
+        }
+    });
+}
+
+// ═══════════════════════════════════════════════════════════
+// USER ACTIONS
+// ═══════════════════════════════════════════════════════════
+function addU() {
+    const n = document.getElementById('n_n').value;
+    const i = document.getElementById('n_i').value;
+    const dur = parseInt(document.getElementById('n_d').value);
+    const price = parseInt(document.getElementById('n_p')?.value) || 0;
+    if(!n || !i) return Toast.fire({icon: 'error', title: 'ناقص'});
+    let fp = price;
+    if(!fp) {
+        const guess = db.ads.find(a => {
+            const m = (a.title||'').match(/(\d+)/);
+            if(!m) return false;
+            return Math.abs(parseInt(m[1]) * 30 - dur) < 10;
+        });
+        if(guess) fp = parseInt(guess.price);
+    }
+    const eidx = db.users.findIndex(u => u.uid === i);
+    if(eidx !== -1) {
+        let eu = db.users[eidx];
+        let s = getS(eu.start, eu.dur);
+        let rd = s.rem > 0 ? Math.ceil(s.rem / 86400000) : 0;
+        eu.name = n;
+        if(document.getElementById('n_u').value) eu.uname = document.getElementById('n_u').value;
+        eu.dur = dur > 5000 ? 99999 : rd + dur;
+        eu.start = new Date().toISOString();
+        db.users.splice(eidx, 1);
+        db.users.unshift(eu);
+        Toast.fire({icon: 'success', title: 'تمدید شد'});
+    } else {
+        db.users.unshift({id: Date.now(), name: n, uid: i, uname: document.getElementById('n_u').value||'', dur, start: new Date().toISOString()});
+        Toast.fire({icon: 'success', title: 'ثبت شد'});
+    }
+    try { confetti({particleCount: 90, spread: 90, origin: {y: 0.5}}); } catch(e) {}
+    db.history.push({
+        id: Date.now(), name: n, uid: i,
+        uname: document.getElementById('n_u').value||'',
+        dur, price: fp,
+        planTitle: dur > 5000 ? 'دائمی' : dur + ' روز',
+        dateAdded: new Date().toISOString()
+    });
+    save();
+    adm(1);
+}
+
+function delU(id, tab) {
+    if(confirm('حذف؟')) {
+        db.users = db.users.filter(u => u.id !== id);
+        save();
+        adm(tab);
+    }
+}
+
+function editU(id, fromWarRoom) {
+    const user = db.users.find(u => u.id === id);
+    if(!user) return;
+    Swal.fire({
+        title: `ویرایش: ${user.name}`,
+        background: 'var(--card)', color: 'var(--text)',
+        html: `<div style="text-align:right;">
+            <label>نام</label><input id="e_n" class="swal2-input" value="${user.name}" style="width:80%; margin:5px auto;">
+            <label>آیدی</label><input id="e_i" class="swal2-input" inputmode="numeric" value="${user.uid}" style="width:80%; margin:5px auto;">
+            <label>مدت</label><input id="e_d" type="number" class="swal2-input" value="${user.dur}" style="width:80%; margin:5px auto;">
+            <button onclick="document.getElementById('e_d').value = parseInt(document.getElementById('e_d').value)+30" class="btn btn-info" style="width:100%; margin-top:12px;">+30 روز</button>
+        </div>`,
+        showCancelButton: true, confirmButtonText: 'ذخیره'
+    }).then(res => {
+        if(res.isConfirmed) {
+            user.name = document.getElementById('e_n').value;
+            user.uid = document.getElementById('e_i').value;
+            user.dur = parseInt(document.getElementById('e_d').value);
+            if(fromWarRoom) user.start = new Date().toISOString();
+            save();
+            adm(fromWarRoom ? 4 : 1);
+        }
+    });
+}
+
+function delHistory(ds) {
+    if(confirm('حذف سابقه؟')) {
+        db.history = db.history.filter(h => h.dateAdded !== ds);
+        save();
+        adm(5);
+    }
+}
+
+window.bulkExtend = () => {
+    Swal.fire({
+        title: 'تمدید همگانی', input: 'number',
+        background: 'var(--card)', color: 'var(--text)',
+        showCancelButton: true, confirmButtonText: 'اعمال', cancelButtonText: 'لغو'
+    }).then(res => {
+        if(res.isConfirmed && res.value > 0) {
+            const d = parseInt(res.value);
+            let cnt = 0;
+            db.users.forEach(u => { if(u.dur < 5000) { u.dur += d; cnt++; } });
+            save();
+            adm(1);
+            Toast.fire({icon: 'success', title: `${cnt} کاربر`});
+        }
+    });
+};
+
+function genReceipt() {
+    const n = document.getElementById('n_n').value;
+    const u = document.getElementById('n_i').value;
+    const sel = document.getElementById('n_d');
+    const dd = parseInt(sel.value);
+    if(!n || !u) return Toast.fire({icon: 'error', title: 'نام و آیدی الزامی'});
+    const now = new Date();
+    const end = new Date(now.getTime() + (dd * 86400000));
+    document.getElementById('r-name').innerText = n;
+    document.getElementById('r-uid').innerText = u;
+    document.getElementById('r-dur').innerText = sel.options[sel.selectedIndex].text;
+    document.getElementById('r-date').innerText = pDate(now.toISOString());
+    document.getElementById('r-exp').innerText = dd > 5000 ? 'دائمی' : pDate(end.toISOString());
+    try { JsBarcode("#ticket-barcode", u, {format: "CODE128", lineColor: "#d8b4fe", background: "transparent", width: 2, height: 45, displayValue: false}); } catch(e) {}
+    Swal.fire({html: document.getElementById('receipt-temp').innerHTML, showConfirmButton: false, background: 'transparent', backdrop: 'rgba(0,0,0,0.92)', width: 'auto', padding: 0});
+}
+
+function downloadTicket() {
+    html2canvas(document.querySelector('.swal2-html-container #ticket-capture'), {backgroundColor: null, scale: 2}).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `Ticket-${document.getElementById('r-uid').innerText}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    });
+}
+
+// ═══════════════════════════════════════════════════════════
+// SEARCH
+// ═══════════════════════════════════════════════════════════
+let countdownTimers = [];
+
+function searchU() {
+    const q = document.getElementById('q').value.trim();
+    const res = document.getElementById('q-res');
+    countdownTimers.forEach(t => clearInterval(t));
+    countdownTimers = [];
+    if(!q) { res.classList.add('hidden'); return; }
+    const qL = q.toLowerCase();
+    const activeUser = db.users.find(x => 
+        String(x.uid) === q || 
+        (x.uname && String(x.uname).toLowerCase().replace('@','') === qL.replace('@',''))
+    );
+    const uH = (db.history || []).filter(x => 
+        String(x.uid) === q || 
+        (x.uname && String(x.uname).toLowerCase().replace('@','') === qL.replace('@',''))
+    );
+    if(!activeUser && uH.length === 0) {
+        res.innerHTML = `<div class="no-user-card"><i class="fas fa-user-slash no-user-icon"></i><h3 style="color:var(--danger);">پیدا نشد</h3><p style="color:var(--muted); font-size:0.85rem;">آیدی دقیق‌تر</p></div>`;
+        res.classList.remove('hidden');
+        return;
+    }
+    
+    const loyalty = calculateLoyalty(uH);
+    const activity = calculateActivity(uH, activeUser);
+    let html = '';
+    
+    if(activeUser) {
+        const s = getS(activeUser.start, activeUser.dur);
+        const circ = 2 * Math.PI * 45;
+        const off = circ * (1 - s.per / 100);
+        let rc = 'var(--success)';
+        if(s.per < 20) rc = 'var(--danger)';
+        else if(s.per < 50) rc = 'var(--warning)';
+        
+        html += `<div class="status-hero">
+            <svg width="0" height="0" style="position:absolute;"><defs><linearGradient id="progressGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${rc}"/><stop offset="100%" stop-color="var(--primary)"/></linearGradient></defs></svg>
+            <div class="status-name">${activeUser.name}</div>
+            <div class="status-id">${activeUser.uid}${activeUser.uname ? ' • ' + activeUser.uname : ''}</div>
+            <div class="progress-circle-wrap">
+                <svg viewBox="0 0 100 100">
+                    <circle class="circle-bg" cx="50" cy="50" r="45"/>
+                    <circle class="circle-fg" cx="50" cy="50" r="45" stroke-dasharray="${circ}" stroke-dashoffset="${off}"/>
+                </svg>
+                <div class="progress-center"><div class="progress-percent">${s.per}%</div><div class="progress-label">باقی‌مانده</div></div>
+            </div>
+            <div class="live-countdown">
+                <div class="cd-box"><div class="cd-num" id="cd-days">0</div><div class="cd-lbl">روز</div></div>
+                <div class="cd-box"><div class="cd-num" id="cd-hours">00</div><div class="cd-lbl">ساعت</div></div>
+                <div class="cd-box"><div class="cd-num" id="cd-mins">00</div><div class="cd-lbl">دقیقه</div></div>
+                <div class="cd-box"><div class="cd-num" id="cd-secs">00</div><div class="cd-lbl">ثانیه</div></div>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:6px;">
+                <div class="loyalty-badge" style="color:${loyalty.color}; border-color:${loyalty.color}; background:${loyalty.color}20;"><i class="fas ${loyalty.icon}"></i> ${loyalty.name}${loyalty.discount > 0 ? ' • ' + loyalty.discount + '%' : ''}</div>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:6px; margin-top:8px;">
+                <div class="activity-badge" style="color:${activity.color}; border-color:${activity.color}; background:${activity.color}20;"><i class="fas ${activity.icon}"></i> ${activity.name}</div>
+            </div>
+            <p style="text-align:center; font-size:0.8rem; color:var(--muted); margin-top:8px; font-style:italic;">${activity.desc}</p>
+            <div class="stat-grid">
+                <div class="stat-box"><div class="sb-icn"><i class="fas fa-calendar-check"></i></div><div class="sb-val">${pDate(new Date(s.end).toISOString())}</div><div class="sb-lbl">پایان</div></div>
+                <div class="stat-box"><div class="sb-icn"><i class="fas fa-shopping-bag"></i></div><div class="sb-val">${uH.length}</div><div class="sb-lbl">خرید</div></div>
+                <div class="stat-box"><div class="sb-icn"><i class="fas fa-hourglass-half"></i></div><div class="sb-val">${s.days > 0 ? s.days : 0}</div><div class="sb-lbl">روز</div></div>
+                <div class="stat-box"><div class="sb-icn"><i class="fas fa-infinity"></i></div><div class="sb-val">${activeUser.dur > 5000 ? '∞' : activeUser.dur + ' روز'}</div><div class="sb-lbl">پلن</div></div>
+            </div>
+            ${loyalty.discount > 0 ? `<button class="btn btn-success" style="width:100%; margin-top:18px; font-size:0.9rem;" onclick="renderUIAds(${loyalty.discount}); Toast.fire({icon:'success', title:'تخفیف اعمال شد'});"><i class="fas fa-gift"></i> اعمال ${loyalty.discount}% تخفیف</button>` : ''}
+        </div>`;
+        
+        const et = s.end;
+        const upd = () => {
+            const r = et - Date.now();
+            if(r <= 0) { ['cd-days','cd-hours','cd-mins','cd-secs'].forEach(id => { const el = document.getElementById(id); if(el) el.innerText = '00'; }); return; }
+            const d = Math.floor(r / 86400000);
+            const h = Math.floor((r % 86400000) / 3600000);
+            const m = Math.floor((r % 3600000) / 60000);
+            const sc = Math.floor((r % 60000) / 1000);
+            const sv = (id, v) => { const el = document.getElementById(id); if(el) el.innerText = String(v).padStart(2,'0'); };
+            sv('cd-days', d); sv('cd-hours', h); sv('cd-mins', m); sv('cd-secs', sc);
+        };
+        upd();
+        countdownTimers.push(setInterval(upd, 1000));
+    } else {
+        html += `<div class="status-hero" style="text-align:center;">
+            <div class="status-name" style="margin-bottom:12px;">${uH[0]?.name || 'کاربر'}</div>
+            <div style="display:flex; justify-content:center; margin-bottom:15px;">
+                <div style="width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg, var(--danger), var(--warning)); display:flex; align-items:center; justify-content:center; color:white; font-size:2rem;"><i class="fas fa-clock"></i></div>
+            </div>
+            <h3 style="color:var(--danger); margin-bottom:8px;">اشتراک تموم شده</h3>
+            <p style="color:var(--muted); font-size:0.85rem; margin-bottom:15px;">${activity.desc}</p>
+            <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:6px;">
+                <div class="loyalty-badge" style="color:${loyalty.color}; border-color:${loyalty.color}; background:${loyalty.color}20;"><i class="fas ${loyalty.icon}"></i> ${loyalty.name}</div>
+                <div class="activity-badge" style="color:${activity.color}; border-color:${activity.color}; background:${activity.color}20;"><i class="fas ${activity.icon}"></i> ${activity.name}</div>
+            </div>
+        </div>`;
+    }
+    
+    if(uH.length > 0) {
+        html += `<details style="background:var(--inner-bg); border-radius:15px; border:1px solid var(--inner-border); margin-top:15px;" open>
+            <summary style="padding:15px; cursor:pointer; font-weight:bold; color:var(--primary); list-style:none;"><i class="fas fa-history"></i> سوابق (${uH.length})</summary>
+            <div style="padding:5px 20px 20px;"><div class="timeline-wrap">
+                ${[...uH].reverse().map(h => `<div class="tl-item"><div class="tl-head"><span class="tl-title">${h.dur > 5000 ? 'دائمی' : h.dur + ' روز'}</span><span class="tl-date">${pDate(h.dateAdded || h.start)}</span></div>${h.price ? `<div class="tl-meta"><i class="fas fa-coins"></i> ${formatMoney(h.price)}</div>` : ''}</div>`).join('')}
+            </div></div>
+        </details>`;
+    }
+    res.innerHTML = html;
+    res.classList.remove('hidden');
+    setTimeout(() => res.scrollIntoView({behavior: 'smooth', block: 'start'}), 100);
+}
+
+// ═══════════════════════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════════════════════
+function showLogin() {
+    Swal.fire({
+        title: '<i class="fas fa-lock"></i> ورود ادمین',
+        input: 'password', inputPlaceholder: 'رمز',
+        background: 'var(--card)', color: 'var(--text)',
+        confirmButtonColor: 'var(--primary)', confirmButtonText: 'ورود',
+        showCancelButton: true, cancelButtonText: 'لغو'
+    }).then(v => {
+        if(v.value === 'mory') {
+            document.getElementById('view-user').classList.add('hidden');
+            document.getElementById('view-admin').classList.remove('hidden');
+            document.getElementById('admin-lock-btn').classList.add('hidden');
+            adm(1);
+            setTimeout(() => {
+                const tu = db.users.length;
+                const ac = db.users.filter(u => getS(u.start, u.dur).rem > 0).length;
+                const ec = db.users.filter(u => getS(u.start, u.dur).rem <= 0).length;
+                const nc = db.users.filter(u => { const s = getS(u.start, u.dur).rem; return Math.ceil(s/86400000) <= 5 && s > 0; }).length;
+                Swal.fire({
+                    title: '',
+                    html: `<div style="text-align:center;">
+                        <div style="display:inline-flex; width:80px; height:80px; border-radius:50%; background:radial-gradient(circle, rgba(251,191,36,0.3), rgba(168,85,247,0.15)); border:2px solid rgba(251,191,36,0.6); align-items:center; justify-content:center; font-size:2.2rem; color:#fbbf24; margin-bottom:8px;"><i class="fas fa-crown"></i></div>
+                        <h2 style="color:var(--primary); margin:5px 0 4px;">خوش آمدی</h2>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:15px; text-align:right;">
+                            <div style="background:var(--inner-bg); border-radius:14px; padding:14px; border-right:3px solid var(--primary);"><div style="color:var(--primary); font-size:1.3rem; margin-bottom:6px;"><i class="fas fa-users"></i></div><div style="font-size:0.72rem; color:var(--muted);">کل</div><div style="font-size:1.5rem; font-weight:900; color:var(--primary);">${tu}</div></div>
+                            <div style="background:var(--inner-bg); border-radius:14px; padding:14px; border-right:3px solid var(--success);"><div style="color:var(--success); font-size:1.3rem; margin-bottom:6px;"><i class="fas fa-check-circle"></i></div><div style="font-size:0.72rem; color:var(--muted);">فعال</div><div style="font-size:1.5rem; font-weight:900; color:var(--success);">${ac}</div></div>
+                            <div style="background:var(--inner-bg); border-radius:14px; padding:14px; border-right:3px solid var(--warning);"><div style="color:var(--warning); font-size:1.3rem; margin-bottom:6px;"><i class="fas fa-exclamation-triangle"></i></div><div style="font-size:0.72rem; color:var(--muted);">زیر ۵ روز</div><div style="font-size:1.5rem; font-weight:900; color:var(--warning);">${nc}</div></div>
+                            <div style="background:var(--inner-bg); border-radius:14px; padding:14px; border-right:3px solid var(--danger);"><div style="color:var(--danger); font-size:1.3rem; margin-bottom:6px;"><i class="fas fa-skull"></i></div><div style="font-size:0.72rem; color:var(--muted);">منقضی</div><div style="font-size:1.5rem; font-weight:900; color:var(--danger);">${ec}</div></div>
+                        </div>
+                    </div>`,
+                    background: 'var(--card)', color: 'var(--text)',
+                    showConfirmButton: true, confirmButtonText: 'شروع', width: '420px'
+                });
+                try { confetti({particleCount: 120, spread: 100, origin: {y: 0.3}}); } catch(e) {}
+            }, 400);
+        } else if(v.value) {
+            Toast.fire({icon: 'error', title: 'رمز اشتباه'});
+        }
+    });
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+applyPref();
+renderSettingsColors();
+loadFromCloud();
+
+// Realtime
+supabaseClient
+    .channel('anime-data-changes')
+    .on('postgres_changes', {event: 'UPDATE', schema: 'public', table: 'anime_data'}, (payload) => {
+        console.log('🔔 آپدیت از سرور');
+        if(payload.new && payload.new.data) {
+            db = payload.new.data;
+            if(!db.users) db.users = [];
+            if(!db.history) db.history = [];
+            renderUIAds();
+            if(document.getElementById('admin-user-list')) renderAdminUsers('');
+            setSyncStatus('online', 'آپدیت شد');
+        }
+    })
+    .subscribe();
+
+setInterval(() => {
+    document.querySelectorAll('.timer').forEach(el => {
+        const end = el.getAttribute('data-end');
+        if(end) el.innerText = fmt(end - Date.now());
+    });
+}, 1000);
+</script>
+</body>
+</html>
